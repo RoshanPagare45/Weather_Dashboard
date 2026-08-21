@@ -9,6 +9,107 @@ const GEOCODING_API =
     "https://geocoding-api.open-meteo.com/v1/search";
 
 
+/*
+ * ==================================================
+ * DETECT QUERY TYPE
+ * ==================================================
+ *
+ * A single input can be a city name, a "lat, lon" pair,
+ * or a numeric pincode/postal code. This inspects the
+ * raw text and returns a tagged payload so App.jsx can
+ * route to the right lookup without re-parsing.
+ * ==================================================
+ */
+
+const COORDINATE_PATTERN =
+    /^\s*(-?\d{1,3}(?:\.\d+)?)\s*°?\s*([NnSs])?\s*[,\s]\s*(-?\d{1,3}(?:\.\d+)?)\s*°?\s*([EeWw])?\s*$/;
+
+const PINCODE_PATTERN =
+    /^\d{3,10}$/;
+
+
+function detectQueryType(rawValue) {
+
+    const value =
+        rawValue.trim();
+
+
+    const coordinateMatch =
+        value.match(COORDINATE_PATTERN);
+
+    if (coordinateMatch) {
+
+        let latitude =
+            Number(coordinateMatch[1]);
+
+        let longitude =
+            Number(coordinateMatch[3]);
+
+        const latDirection =
+            coordinateMatch[2]?.toUpperCase();
+
+        const lonDirection =
+            coordinateMatch[4]?.toUpperCase();
+
+        // Apply N/S/E/W direction letters if present,
+        // e.g. "19.076 S" flips a positive number negative.
+        if (latDirection === "S") {
+
+            latitude = -Math.abs(latitude);
+
+        } else if (latDirection === "N") {
+
+            latitude = Math.abs(latitude);
+
+        }
+
+        if (lonDirection === "W") {
+
+            longitude = -Math.abs(longitude);
+
+        } else if (lonDirection === "E") {
+
+            longitude = Math.abs(longitude);
+
+        }
+
+        if (
+            latitude >= -90 &&
+            latitude <= 90 &&
+            longitude >= -180 &&
+            longitude <= 180
+        ) {
+
+            return {
+                type: "coords",
+                latitude,
+                longitude,
+                name: "Pinned location"
+            };
+
+        }
+
+    }
+
+
+    if (PINCODE_PATTERN.test(value)) {
+
+        return {
+            type: "pincode",
+            code: value
+        };
+
+    }
+
+
+    return {
+        type: "name",
+        value
+    };
+
+}
+
+
 function WeatherSearch({
     onSearch,
     onClear,
@@ -244,6 +345,35 @@ function WeatherSearch({
         }
 
 
+        // Don't fetch city suggestions for coordinate
+        // or pincode-style input — there's nothing to
+        // autocomplete for those.
+        const detected =
+            detectQueryType(value);
+
+        if (detected.type !== "name") {
+
+            setSuggestions([]);
+
+            setShowSuggestions(false);
+
+
+            if (
+                abortControllerRef.current
+            ) {
+
+                abortControllerRef.current.abort();
+
+                abortControllerRef.current =
+                    null;
+
+            }
+
+            return;
+
+        }
+
+
         // Wait briefly before requesting API
         debounceTimerRef.current =
             setTimeout(() => {
@@ -325,7 +455,10 @@ function WeatherSearch({
 
         // Search immediately using the EXACT
         // location the user picked, not just its name.
-        onSearch(location);
+        onSearch({
+            type: "location",
+            ...location
+        });
 
     };
 
@@ -398,7 +531,13 @@ function WeatherSearch({
         }
 
 
-        onSearch(trimmedCity);
+        // Detect whether this is a city name, a
+        // "lat, lon" pair, or a pincode, and send a
+        // tagged payload so App.jsx can route it to
+        // the right lookup.
+        onSearch(
+            detectQueryType(trimmedCity)
+        );
 
     };
 
@@ -717,7 +856,7 @@ function WeatherSearch({
 
 
                     <p>
-                        Enter a city to view live weather data
+                        City name, pincode, or "lat, lon"
                     </p>
 
                 </div>
@@ -782,7 +921,7 @@ function WeatherSearch({
                                     }
 
                                 }}
-                                placeholder="Enter city name"
+                                placeholder="City, pincode, or lat, lon"
                                 aria-label="City name"
                                 aria-autocomplete="list"
                                 aria-expanded={
