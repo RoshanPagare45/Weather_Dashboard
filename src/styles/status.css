@@ -1,0 +1,142 @@
+/* =========================================================
+   ERROR / LOADING
+========================================================= */
+
+.error-card,
+.loading-card {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        13px;
+
+    padding:
+        16px 18px;
+
+    margin-bottom:
+        20px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius:
+        var(--radius-lg);
+
+    background:
+        rgba(20,22,24,0.82);
+
+    box-shadow:
+        0 14px 40px
+        rgba(0,0,0,0.20);
+}
+
+
+.error-card {
+
+    border-color:
+        rgba(255,100,120,0.22);
+}
+
+
+.error-icon {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    width:
+        34px;
+
+    height:
+        34px;
+
+    flex:
+        0 0 34px;
+
+    border-radius:
+        10px;
+
+    background:
+        rgba(255,100,120,0.10);
+
+    color:
+        #ff9ba6;
+
+    font-weight:
+        800;
+}
+
+
+.error-card strong,
+.loading-card strong {
+
+    display:
+        block;
+
+    color:
+        var(--text);
+
+    font-size:
+        13px;
+}
+
+
+.error-card p,
+.loading-card p {
+
+    margin:
+        4px 0 0;
+
+    color:
+        var(--text-muted);
+
+    font-size:
+        11px;
+}
+
+
+.loading-spinner {
+
+    width:
+        30px;
+
+    height:
+        30px;
+
+    flex:
+        0 0 30px;
+
+    border:
+        3px solid
+        rgba(255,255,255,0.08);
+
+    border-top-color:
+        var(--theme-accent);
+
+    border-radius:
+        50%;
+
+    animation:
+        spin
+        0.75s
+        linear
+        infinite;
+}
+
+
+@keyframes spin {
+
+    to {
+        transform:
+            rotate(360deg);
+    }
+}

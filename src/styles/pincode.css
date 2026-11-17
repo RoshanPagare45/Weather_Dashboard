@@ -1,0 +1,302 @@
+/* =========================================================
+   PINCODE AREA PICKER
+========================================================= */
+
+.pincode-picker-card {
+
+    position:
+        relative;
+
+    width:
+        100%;
+
+    padding:
+        20px;
+
+    margin-bottom:
+        24px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius:
+        var(--radius-xl);
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(28, 30, 32, 0.86),
+            rgba(10, 12, 14, 0.86)
+        );
+
+    box-shadow:
+        0 20px 55px
+        rgba(0, 0, 0, 0.28),
+
+        inset 0 1px 0
+        rgba(255, 255, 255, 0.045);
+
+    backdrop-filter:
+        blur(18px);
+
+    -webkit-backdrop-filter:
+        blur(18px);
+}
+
+
+.pincode-picker-heading {
+
+    margin-bottom:
+        16px;
+}
+
+
+.pincode-picker-heading h2 {
+
+    margin:
+        5px 0 0;
+
+    color:
+        var(--text);
+
+    font-family:
+        var(--wx-font-display);
+
+    font-size:
+        17px;
+
+    font-weight:
+        700;
+
+    letter-spacing:
+        -0.025em;
+}
+
+
+.pincode-picker-heading p {
+
+    margin:
+        6px 0 0;
+
+    max-width:
+        520px;
+
+    color:
+        var(--text-muted);
+
+    font-size:
+        12px;
+
+    line-height:
+        1.6;
+}
+
+
+.pincode-office-grid {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fill,
+            minmax(220px, 1fr)
+        );
+
+    gap:
+        10px;
+}
+
+
+.pincode-office-button {
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    align-items:
+        flex-start;
+
+    gap:
+        4px;
+
+    width:
+        100%;
+
+    padding:
+        14px;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.065);
+
+    border-radius:
+        12px;
+
+    background:
+        rgba(255, 255, 255, 0.022);
+
+    color:
+        var(--text);
+
+    text-align:
+        left;
+
+    cursor:
+        pointer;
+
+    transition:
+        transform 150ms ease,
+        border-color 150ms ease,
+        background 150ms ease;
+}
+
+
+.pincode-office-button:hover {
+
+    transform:
+        translateY(-2px);
+
+    border-color:
+        var(--theme-border);
+
+    background:
+        var(--theme-glow-soft);
+}
+
+
+.pincode-office-name {
+
+    color:
+        #eeeeeb;
+
+    font-size:
+        13px;
+
+    font-weight:
+        700;
+}
+
+
+.pincode-office-meta {
+
+    color:
+        var(--text-muted);
+
+    font-size:
+        10px;
+}
+
+
+.pincode-office-badge {
+
+    display:
+        inline-flex;
+
+    margin-top:
+        6px;
+
+    padding:
+        3px 8px;
+
+    border:
+        1px solid var(--theme-border);
+
+    border-radius:
+        999px;
+
+    background:
+        var(--theme-glow-soft);
+
+    color:
+        var(--theme-accent);
+
+    font-size:
+        9px;
+
+    font-weight:
+        700;
+
+    letter-spacing:
+        0.06em;
+
+    text-transform:
+        uppercase;
+}
+
+
+/* =========================================================
+   PINCODE BACK BUTTON
+
+   Shown above the weather dashboard whenever the current
+   weather came from a pincode that had more than one
+   postal area. Lets the user reopen the area picker for
+   THIS SAME pincode search, instead of clearing the
+   search bar and starting over.
+========================================================= */
+
+.pincode-back-button {
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    gap:
+        7px;
+
+    padding:
+        8px 13px;
+
+    margin-bottom:
+        14px;
+
+    border:
+        1px solid var(--theme-border);
+
+    border-radius:
+        999px;
+
+    background:
+        var(--theme-glow-soft);
+
+    color:
+        var(--theme-accent);
+
+    font-size:
+        11px;
+
+    font-weight:
+        700;
+
+    cursor:
+        pointer;
+
+    transition:
+        transform 150ms ease,
+        border-color 150ms ease,
+        background 150ms ease;
+}
+
+
+.pincode-back-button:hover {
+
+    transform:
+        translateX(-2px);
+
+    border-color:
+        var(--theme-accent);
+
+    background:
+        var(--theme-glow);
+}
+
+
+.pincode-back-button svg,
+.pincode-back-button span {
+
+    pointer-events:
+        none;
+}

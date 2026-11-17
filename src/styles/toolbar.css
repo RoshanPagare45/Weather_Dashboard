@@ -1,0 +1,223 @@
+/* =========================================================
+   TOOLBAR (units, refresh, saved places)
+   Uses the app's own design tokens so it matches the
+   existing glass UI in every weather theme.
+========================================================= */
+
+.toolbar {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 8px;
+
+    /* search-panel already leaves 24px below it */
+    margin: -8px 0 24px;
+    padding: 2px;
+
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.toolbar::-webkit-scrollbar {
+    display: none;
+}
+
+.toolbar > * {
+    flex: 0 0 auto;
+}
+
+.unit-toggle {
+    display: inline-flex;
+    overflow: hidden;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    background: var(--surface-soft);
+}
+
+.unit-button,
+.toolbar-button,
+.place-chip {
+    min-height: 36px;
+    padding: 0 14px;
+
+    border: 0;
+    background: transparent;
+    color: var(--text-soft);
+
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.toolbar-button,
+.place-chip {
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    background: var(--surface-soft);
+}
+
+.unit-button.active,
+.place-chip.favourite {
+    background: var(--theme-glow);
+    color: var(--text);
+}
+
+.unit-button:hover,
+.toolbar-button:hover:not(:disabled),
+.place-chip:hover {
+    color: var(--text);
+    border-color: var(--theme-accent);
+}
+
+.unit-button:focus-visible,
+.toolbar-button:focus-visible,
+.place-chip:focus-visible,
+.retry-button:focus-visible {
+    outline: 2px solid var(--theme-accent);
+    outline-offset: 2px;
+}
+
+.toolbar-button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+/* ---------- Retry button inside the error card ---------- */
+.retry-button {
+    min-height: 40px;
+    margin-top: 12px;
+    padding: 0 18px;
+
+    border: 1px solid var(--theme-border);
+    border-radius: 999px;
+    background: var(--surface-light);
+    color: var(--text);
+
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.retry-button:hover {
+    border-color: var(--theme-accent);
+}
+
+/* ---------- Saved-weather banner ---------- */
+.stale-banner {
+    margin: 0 0 12px;
+    padding: 10px 16px;
+
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface-light);
+    color: var(--text-soft);
+
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+/* ---------- Loading skeleton ---------- */
+.skeleton-block {
+    height: 12px;
+    margin-top: 10px;
+    border-radius: 6px;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.04) 25%,
+        rgba(255, 255, 255, 0.10) 50%,
+        rgba(255, 255, 255, 0.04) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.4s linear infinite;
+}
+
+@keyframes skeleton-shimmer {
+    to {
+        background-position: -200% 0;
+    }
+}
+
+/* ---------- Screen-reader-only text ---------- */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 640px) {
+
+    .toolbar {
+        margin: -8px -2px 20px;
+    }
+
+    /* comfortable touch targets */
+    .unit-button,
+    .toolbar-button,
+    .place-chip {
+        min-height: 40px;
+    }
+
+    .stale-banner {
+        font-size: 0.8rem;
+        padding: 9px 14px;
+    }
+
+}
+
+@media (max-width: 380px) {
+
+    .unit-button,
+    .toolbar-button,
+    .place-chip {
+        padding: 0 12px;
+        font-size: 0.78rem;
+    }
+
+}
+
+@media (max-width: 320px) {
+
+    .toolbar {
+        gap: 6px;
+    }
+
+    .unit-button,
+    .toolbar-button,
+    .place-chip {
+        padding: 0 10px;
+        font-size: 0.74rem;
+    }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .skeleton-block {
+        animation: none;
+    }
+
+    .unit-button,
+    .toolbar-button,
+    .place-chip {
+        transition: none;
+    }
+
+}

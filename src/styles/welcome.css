@@ -1,0 +1,192 @@
+/* =========================================================
+   WELCOME
+========================================================= */
+
+.welcome-card {
+
+    position:
+        relative;
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    align-items:
+        center;
+
+    text-align:
+        center;
+
+    padding:
+        60px 25px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius:
+        var(--radius-xl);
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(24,26,28,0.84),
+            rgba(8,10,12,0.82)
+        );
+
+    box-shadow:
+        0 25px 60px
+        rgba(0,0,0,0.28);
+
+    overflow:
+        hidden;
+}
+
+
+.welcome-card::before {
+
+    content:
+        "";
+
+    position:
+        absolute;
+
+    width:
+        320px;
+
+    height:
+        320px;
+
+    top:
+        -180px;
+
+    left:
+        50%;
+
+    transform:
+        translateX(-50%);
+
+    border-radius:
+        50%;
+
+    background:
+        radial-gradient(
+            circle,
+            var(--theme-glow),
+            transparent 70%
+        );
+
+    pointer-events:
+        none;
+}
+
+
+.welcome-icon {
+
+    position:
+        relative;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    width:
+        68px;
+
+    height:
+        68px;
+
+    margin-bottom:
+        18px;
+
+    border:
+        1px solid var(--theme-border);
+
+    border-radius:
+        20px;
+
+    background:
+        var(--theme-glow-soft);
+
+    color:
+        var(--theme-accent);
+
+    font-size:
+        30px;
+}
+
+
+.welcome-card h2 {
+
+    position:
+        relative;
+
+    margin:
+        8px 0 0;
+
+    color:
+        var(--text);
+
+    font-family:
+        var(--wx-font-display);
+
+    font-size:
+        20px;
+}
+
+
+.welcome-card p {
+
+    position:
+        relative;
+
+    max-width:
+        520px;
+
+    margin:
+        9px 0 0;
+
+    color:
+        var(--text-muted);
+
+    font-size:
+        12px;
+
+    line-height:
+        1.7;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.weather-footer {
+
+    display:
+        flex;
+
+    justify-content:
+        center;
+
+    gap:
+        9px;
+
+    margin-top:
+        24px;
+
+    color:
+        #535b59;
+
+    font-size:
+        9px;
+
+    letter-spacing:
+        0.03em;
+}

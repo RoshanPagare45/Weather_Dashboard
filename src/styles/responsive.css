@@ -1,0 +1,331 @@
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 950px) {
+
+    .weather-container {
+
+        width:
+            min(
+                calc(100% - 28px),
+                820px
+            );
+
+        padding-top:
+            35px;
+    }
+
+
+    .weather-dashboard {
+
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .highlights-section {
+
+        grid-column:
+            1;
+    }
+
+
+    .forecast-section,
+    .additional-section,
+    .tomorrow-card {
+
+        grid-column:
+            1;
+    }
+
+
+    .forecast-grid {
+
+        grid-template-columns:
+            repeat(4,1fr);
+    }
+
+
+    .additional-grid {
+
+        grid-template-columns:
+            repeat(3,1fr);
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 620px) {
+
+    /* safety net: the page itself never scrolls sideways on phones
+       (clip, unlike hidden, doesn't create a scroll container) */
+    html,
+    body {
+        overflow-x: clip;
+    }
+
+    .weather-city-suggestions {
+        max-height: min(300px, 45vh);
+        overscroll-behavior: contain;
+    }
+
+
+    .weather-container {
+
+        width:
+            calc(100% - 20px);
+
+        padding:
+            25px 0;
+    }
+
+
+    .weather-header {
+
+        margin-bottom:
+            22px;
+    }
+
+
+    .weather-header h1 {
+
+        /* never wider than the screen: 44px where it fits,
+           shrinking smoothly on narrower phones */
+        font-size:
+            min(44px, calc((100vw - 40px) / 10.2));
+    }
+
+
+    .weather-header p {
+
+        font-size:
+            12px;
+    }
+
+
+    .search-panel {
+
+        padding:
+            15px;
+
+        border-radius:
+            18px;
+    }
+
+
+    .weather-search-form {
+
+        grid-template-columns:
+            1fr;
+
+        gap:
+            9px;
+    }
+
+
+    .weather-search-button {
+
+        width:
+            100%;
+    }
+
+
+    .dashboard-main-card {
+
+        padding:
+            18px;
+
+        min-height:
+            auto;
+    }
+
+
+    .main-weather-content {
+
+        min-height:
+            185px;
+    }
+
+
+    .weather-visual {
+
+        min-width:
+            105px;
+    }
+
+
+    .weather-orb {
+
+        width:
+            100px;
+
+        height:
+            100px;
+    }
+
+
+    .weather-orb span {
+
+        font-size:
+            48px;
+    }
+
+
+    .big-temperature {
+
+        font-size:
+            64px;
+    }
+
+
+    .big-temperature span {
+
+        font-size:
+            22px;
+    }
+
+
+    .highlights-grid {
+
+        grid-template-columns:
+            repeat(2,1fr);
+    }
+
+
+    .forecast-grid {
+
+        grid-template-columns:
+            repeat(2,1fr);
+    }
+
+
+    .historical-grid {
+
+        grid-template-columns:
+            repeat(2,1fr);
+    }
+
+
+    .additional-grid {
+
+        grid-template-columns:
+            repeat(2,1fr);
+    }
+
+
+    .tomorrow-card {
+
+        align-items:
+            flex-start;
+    }
+
+
+    .tomorrow-temperature {
+
+        font-size:
+            24px;
+    }
+
+
+    .map-frame {
+
+        height:
+            240px;
+    }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 400px) {
+
+    .main-weather-content {
+
+        align-items:
+            flex-start;
+    }
+
+
+    .weather-visual {
+
+        display:
+            none;
+    }
+
+
+    .big-temperature {
+
+        font-size:
+            62px;
+    }
+
+
+    .temperature-range {
+
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .highlights-grid {
+
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .historical-grid {
+
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .additional-grid {
+
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .weather-footer {
+
+        flex-wrap:
+            wrap;
+    }
+
+}
+
+
+/* =========================================================
+   REDUCE MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+
+        animation-duration:
+            0.01ms !important;
+
+        animation-iteration-count:
+            1 !important;
+
+        transition-duration:
+            0.01ms !important;
+
+        scroll-behavior:
+            auto !important;
+    }
+
+}

@@ -13,18 +13,71 @@ import RainEffect from "./components/RainEffect";
 import {
     getWeatherByCity,
     getWeatherByCoordinates,
-    getWeatherByPincode,
     getPincodeAreas,
-    getWeatherForPincodeArea
+    getWeatherForPincodeArea,
+    clearWeatherCache
 } from "./services/weatherApi";
 
-import "./App.css";
+import Toolbar from "./components/Toolbar";
+import useStoredState from "./hooks/useStoredState";
+import useCurrentLocation from "./hooks/useCurrentLocation";
+import { convertWeatherUnits } from "./utils/units";
 
+import "./styles/base.css";
+import "./styles/search.css";
+import "./styles/status.css";
+import "./styles/weather-card.css";
+import "./styles/rain.css";
+import "./styles/pincode.css";
+import "./styles/map.css";
+import "./styles/welcome.css";
+import "./styles/responsive.css";
+import "./styles/toolbar.css";
+
+
+const WEATHER_CACHE_KEY = "wd.lastWeather";
+const WEATHER_CACHE_MAX_AGE_MS = 6 * 60 * 60 * 1000;
+
+function readCachedWeather() {
+
+    try {
+
+        const entry = JSON.parse(
+            window.localStorage.getItem(WEATHER_CACHE_KEY)
+        );
+
+        if (
+            entry?.weather &&
+            Date.now() - entry.savedAt < WEATHER_CACHE_MAX_AGE_MS
+        ) {
+
+            return entry;
+
+        }
+
+    } catch {
+        // storage unavailable or corrupt: just start empty
+    }
+
+    return null;
+
+}
 
 function App() {
 
+    /*
+     * Last successfully loaded weather is kept in localStorage
+     * and shown INSTANTLY on the next visit (marked "stale")
+     * while fresh data is fetched in the background.
+     */
+    const [cachedEntry] =
+        useState(readCachedWeather);
+
     const [weather, setWeather] =
-        useState(null);
+        useState(cachedEntry?.weather ?? null);
+
+    const [stale, setStale] =
+        useState(cachedEntry !== null);
 
     const [loading, setLoading] =
         useState(false);
@@ -88,6 +141,16 @@ function App() {
 
     const weatherControllerRef =
         useRef(null);
+
+
+    /*
+     * Persisted preferences: temperature unit and saved places.
+     */
+    const [unit, setUnit] =
+        useStoredState("wd.unit", "C");
+
+    const [favourites, setFavourites] =
+        useStoredState("wd.favourites", []);
 
 
     /*
@@ -338,6 +401,7 @@ function App() {
 
 
                 setWeather(weatherData);
+                setStale(false);
 
             } catch (requestError) {
 
@@ -476,6 +540,7 @@ function App() {
                 setShowAreaPicker(false);
 
                 setWeather(weatherData);
+                setStale(false);
 
             } catch (requestError) {
 
@@ -573,84 +638,16 @@ function App() {
 
 
     /*
-     * =====================================================
-     * LOAD CURRENT LOCATION WEATHER
-     * =====================================================
-     *
-     * Uses the browser's Geolocation API. Used both on
-     * initial page load and whenever the search bar is
-     * cleared, so the app always falls back to "where the
-     * user actually is" rather than an empty state.
-     * =====================================================
+     * Current location (browser geolocation + IP fallback) —
+     * see hooks/useCurrentLocation.js.
      */
-
     const loadCurrentLocationWeather =
-        useCallback(() => {
-
-            if (
-                typeof navigator === "undefined" ||
-                !navigator.geolocation
-            ) {
-
-                setWeather(null);
-
-                setError(
-                    "Geolocation isn't available in this browser. Please search for a city, pincode, or coordinates instead."
-                );
-
-                return;
-
-            }
-
-
-            setLoading(true);
-            setError("");
-
-
-            navigator.geolocation.getCurrentPosition(
-
-                (position) => {
-
-                    handleSearch({
-
-                        type: "coords",
-
-                        latitude:
-                            position.coords.latitude,
-
-                        longitude:
-                            position.coords.longitude,
-
-                        name:
-                            "Current Location"
-
-                    });
-
-                },
-
-                () => {
-
-                    setLoading(false);
-
-
-                    setWeather(null);
-
-
-                    setError(
-                        "We couldn't access your location. Please search for a city, pincode, or coordinates instead."
-                    );
-
-                },
-
-                {
-                    enableHighAccuracy: true,
-                    timeout: 15000,
-                    maximumAge: 0
-                }
-
-            );
-
-        }, [handleSearch]);
+        useCurrentLocation({
+            handleSearch,
+            setLoading,
+            setError,
+            setWeather
+        });
 
 
     /*
@@ -666,6 +663,178 @@ function App() {
         // Intentionally run once on mount only.
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+
+    /*
+     * When the connection comes back after an error (e.g.
+     * "You appear to be offline"), retry automatically.
+     */
+    const errorRef = useRef("");
+
+    errorRef.current = error;
+
+    /*
+     * The place currently on screen, in the shape the search
+     * handler understands. Used for favourites and
+     * refresh.
+     */
+    const currentPlace = useMemo(() => {
+
+        if (
+            !weather ||
+            typeof weather.latitude !== "number"
+        ) {
+
+            return null;
+
+        }
+
+        return {
+            type: "location",
+            name: weather.city,
+            country: weather.country,
+            country_code: weather.countryCode,
+            admin1: weather.admin1,
+            latitude: weather.latitude,
+            longitude: weather.longitude
+        };
+
+    }, [weather]);
+
+    // Saved data is only "stale" while it is on screen and no
+    // error/empty state has replaced it.
+    useEffect(() => {
+
+        if (!weather || error) {
+
+            setStale(false);
+
+        }
+
+    }, [weather, error]);
+
+    // Save every freshly loaded result for the next visit.
+    useEffect(() => {
+
+        if (!weather || stale) {
+
+            return;
+
+        }
+
+        try {
+
+            window.localStorage.setItem(
+                WEATHER_CACHE_KEY,
+                JSON.stringify({
+                    weather,
+                    savedAt: Date.now()
+                })
+            );
+
+        } catch {
+            // quota exceeded / blocked storage: ignore
+        }
+
+    }, [weather, stale]);
+
+    const displayWeather = useMemo(
+        () => convertWeatherUnits(weather, unit),
+        [weather, unit]
+    );
+
+    const handleToggleFavourite = useCallback(
+        (place) => {
+
+            setFavourites((previous) => {
+
+                const exists = previous.some(
+                    (f) =>
+                        Math.abs(f.latitude - place.latitude) < 0.01 &&
+                        Math.abs(f.longitude - place.longitude) < 0.01
+                );
+
+                return exists
+                    ? previous.filter(
+                          (f) =>
+                              Math.abs(f.latitude - place.latitude) >= 0.01 ||
+                              Math.abs(f.longitude - place.longitude) >= 0.01
+                      )
+                    : [...previous, place].slice(0, 8);
+
+            });
+
+        },
+        [setFavourites]
+    );
+
+    const handleRefresh = useCallback(() => {
+
+        clearWeatherCache();
+
+        if (currentPlace) {
+
+            handleSearch(currentPlace);
+
+        } else {
+
+            loadCurrentLocationWeather();
+
+        }
+
+    }, [currentPlace, handleSearch, loadCurrentLocationWeather]);
+
+    // Auto-refresh every 15 minutes while the tab is visible.
+    useEffect(() => {
+
+        // Don't auto-refresh mid pincode session (it would reset
+        // the "back to area list" state).
+        if (!currentPlace || pincodeAreas) {
+
+            return undefined;
+
+        }
+
+        const id = setInterval(() => {
+
+            if (document.visibilityState === "visible") {
+
+                clearWeatherCache();
+
+                handleSearch(currentPlace);
+
+            }
+
+        }, 15 * 60 * 1000);
+
+        return () => clearInterval(id);
+
+    }, [currentPlace, pincodeAreas, handleSearch]);
+
+
+    useEffect(() => {
+
+        const handleOnline = () => {
+
+            if (errorRef.current) {
+
+                clearWeatherCache();
+
+                loadCurrentLocationWeather();
+
+            }
+
+        };
+
+        window.addEventListener("online", handleOnline);
+
+        return () =>
+            window.removeEventListener(
+                "online",
+                handleOnline
+            );
+
+    }, [loadCurrentLocationWeather]);
 
 
     /*
@@ -742,10 +911,10 @@ function App() {
      * =====================================================
      *
      * FIX: this must produce a class name that actually
-     * matches what App.css defines (".weather-theme-clear",
+     * matches what the stylesheets define (".weather-theme-clear",
      * ".weather-theme-rain", ".weather-theme-cloudy", etc.)
      * — it previously emitted "app-<type>" (e.g. "app-rain"),
-     * which matches NO selector in App.css. Because of that
+     * which matches NO selector in the stylesheets. Because of that
      * mismatch, the page's accent colors/glow always stayed
      * on the default (root) theme no matter what the actual
      * fetched condition was — so every searched location,
@@ -925,6 +1094,17 @@ function App() {
                     loading={loading}
                 />
 
+                <Toolbar
+                    unit={unit}
+                    onUnitChange={setUnit}
+                    onRefresh={handleRefresh}
+                    refreshing={loading}
+                    current={currentPlace}
+                    favourites={favourites}
+                    onToggleFavourite={handleToggleFavourite}
+                    onSelect={handleSearch}
+                />
+
 
                 {/* =================================================
                     PINCODE AREA PICKER
@@ -1074,6 +1254,17 @@ function App() {
                                 {error}
                             </p>
 
+                            <button
+                                type="button"
+                                className="retry-button"
+                                onClick={() => {
+                                    clearWeatherCache();
+                                    loadCurrentLocationWeather();
+                                }}
+                            >
+                                Try again
+                            </button>
+
                         </div>
 
                     </section>
@@ -1085,7 +1276,7 @@ function App() {
                     LOADING
                 ================================================= */}
 
-                {loading && (
+                {loading && !stale && (
 
                     <section
                         className="loading-card"
@@ -1108,6 +1299,18 @@ function App() {
                             <p>
                                 Connecting to the weather service…
                             </p>
+
+                            <div
+                                className="skeleton-block"
+                                style={{ width: "14rem" }}
+                                aria-hidden="true"
+                            />
+
+                            <div
+                                className="skeleton-block"
+                                style={{ width: "10rem" }}
+                                aria-hidden="true"
+                            />
 
                         </div>
 
@@ -1157,13 +1360,32 @@ function App() {
                 ================================================= */}
 
                 {weather &&
-                    !loading &&
+                    (!loading || stale) &&
                     !error &&
                     !showAreaPicker && (
 
+                    <>
+
+                    {stale && (
+
+                        <p
+                            className="stale-banner"
+                            role="status"
+                        >
+                            Showing last saved weather for{" "}
+                            {weather.city}
+                            {loading
+                                ? " — updating…"
+                                : ""}
+                        </p>
+
+                    )}
+
                     <WeatherCard
-                        weather={weather}
+                        weather={displayWeather}
                     />
+
+                    </>
 
                 )}
 

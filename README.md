@@ -1,18 +1,67 @@
-# React + Vite
+# Weather Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A React + Vite weather dashboard. Shows weather for your current location by default and lets you search by city, Indian pincode, or coordinates (`lat, lon`).
 
-Currently, two official plugins are available:
+## Run
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```bash
+npm install
+npm run dev      # development
+npm run build    # production build
+npm run lint     # oxlint
+```
 
-## React Compiler
+Geolocation only works on `https://` or `http://localhost`, and needs location permission allowed in the browser.
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+## Data sources (all free, no API keys)
 
-Note: This will impact Vite dev & build performances.
+| Purpose | Service |
+| --- | --- |
+| Forecast, history, city search | [Open-Meteo](https://open-meteo.com) |
+| Reverse geocoding / area lookup | [Nominatim (OpenStreetMap)](https://nominatim.org) |
+| Indian pincode → post offices | [postalpincode.in](https://api.postalpincode.in) |
+| Approximate location fallback (by IP) | [ipapi.co](https://ipapi.co) |
+| Map | OpenStreetMap embed |
 
-## Expanding the Oxlint configuration
+## Privacy
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+Your coordinates are sent to Nominatim (to name your area) and Open-Meteo (for the forecast). If the browser can't determine your location, your IP address is sent to ipapi.co for an approximate, city-level position. Nothing is stored on a server.
+
+## How current location works
+
+The browser's geolocation lookup and the IP lookup run in parallel; whichever answers first is used, and the precise browser position replaces the IP estimate if it arrives later. Weather and the place name are fetched in parallel, and the name lookup is capped at 3 seconds.
+
+## Reliability
+
+- 10 s timeout on every request, one automatic retry on network/5xx errors
+- 10-minute in-memory response cache; place names cached per ~100 m
+- "Try again" button, automatic retry when the connection returns
+- Error boundary so a rendering crash never leaves a blank page
+
+## Features
+
+- °C / °F toggle, saved places (★) and recent places, manual refresh, auto-refresh every 15 minutes while the tab is visible (preferences are kept in `localStorage`)
+- Installable as an app (PWA): the app shell opens offline; weather data is always fetched live
+- Two IP-lookup services (`ipapi.co`, `ipwho.is`) race as the location fallback
+
+## Project layout
+
+```
+src/
+  App.jsx                    state + layout
+  styles/                    CSS split by area (base, search, status, weather-card, rain, pincode, map, welcome, responsive, toolbar)
+  components/                WeatherCard, WeatherSearch, Toolbar, ErrorBoundary, ...
+  hooks/                     useStoredState, useCurrentLocation
+  utils/units.js             °C -> °F conversion
+  services/
+    weatherApi.js            public facade (re-exports)
+    http.js                  timeout, retry, cache
+    forecast.js              Open-Meteo forecast + history
+    geocoding.js             city search, reverse geocoding, by-coordinates
+    pincode.js               Indian pincode / post-office lookup
+    location.js             browser geolocation + IP fallback
+```
+
+## Scripts
+
+`npm run dev` · `npm run build` · `npm run lint` · `npm test` · `npm run format` · `npm run check` (lint + test + build)

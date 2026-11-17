@@ -1,0 +1,231 @@
+/* =========================================================
+   RAIN EFFECT
+   Covers the FULL viewport/page (position: fixed), not
+   just one section — it stays pinned in place regardless
+   of scroll or which section it's mounted near. It sits
+   BEHIND all data: every content section/card already
+   carries an explicit z-index (1 or 2), so as long as
+   this stays at z-index: 0 it paints underneath them.
+   Color is a fixed, realistic blue — independent of the
+   active weather theme's accent — so rain always reads
+   as rain.
+========================================================= */
+
+/* =========================================================
+   RAIN EFFECT
+   BACKGROUND ONLY
+========================================================= */
+
+.rain-effect {
+
+    position: fixed;
+
+    inset: 0;
+
+    width: 100vw;
+    height: 100vh;
+
+    overflow: hidden;
+
+    pointer-events: none;
+
+    /*
+     * Keep rain behind the application content.
+     */
+    z-index: -1;
+
+    /*
+     * Prevent the rain layer from creating
+     * unnecessary visual compositing.
+     */
+    isolation: isolate;
+
+    contain: strict;
+}
+
+
+/* =========================================================
+   NATURAL DIAGONAL RAIN
+========================================================= */
+
+.rain-drop {
+
+    position: absolute;
+
+    top: -140px;
+
+    width: 1.5px;
+
+    border-radius: 999px;
+
+    background:
+        linear-gradient(
+            to bottom,
+            rgba(130, 160, 175, 0),
+            rgba(130, 160, 175, 0.38) 20%,
+            rgba(145, 175, 188, 0.58) 65%,
+            rgba(155, 185, 195, 0.22)
+        );
+
+    box-shadow:
+        0 0 3px rgba(110, 145, 160, 0.18);
+
+    /*
+     * Slight diagonal angle.
+     * The animation moves horizontally at the same
+     * time, making the rain feel like real falling rain.
+     */
+    transform:
+        translate3d(0, -160px, 0)
+        rotate(14deg);
+
+    animation:
+        rainDropFall
+        linear
+        infinite;
+
+    pointer-events:
+        none;
+
+    will-change:
+        transform;
+
+    z-index:
+        0;
+}
+
+
+/* =========================================================
+   NATURAL FALLING MOTION
+========================================================= */
+
+@keyframes rainDropFall {
+
+    0% {
+
+        transform:
+            translate3d(0, -160px, 0)
+            rotate(14deg);
+
+    }
+
+    100% {
+
+        transform:
+            translate3d(var(--drift), 115vh, 0)
+            rotate(14deg);
+
+    }
+
+}
+
+
+/* =========================================================
+   HEAVY / STORM RAIN
+========================================================= */
+
+.rain-effect-storm .rain-drop {
+
+    width: 2px;
+
+    background:
+        linear-gradient(
+            to bottom,
+            rgba(130, 160, 175, 0),
+            rgba(130, 160, 175, 0.42) 20%,
+            rgba(145, 175, 188, 0.64) 65%,
+            rgba(155, 185, 195, 0.25)
+        );
+
+    box-shadow:
+        0 0 4px rgba(110, 145, 160, 0.22);
+}
+
+
+/* =========================================================
+   SUBTLE RAIN MIST
+========================================================= */
+
+.rain-mist {
+
+    position: absolute;
+
+    inset: 0;
+
+    pointer-events: none;
+
+    background:
+        radial-gradient(
+            ellipse at 50% 100%,
+            rgba(70, 100, 115, 0.03),
+            transparent 65%
+        );
+
+    opacity: 0.5;
+
+    z-index: 0;
+}
+
+
+/* =========================================================
+   STORM
+========================================================= */
+
+.rain-effect-storm .rain-drop {
+
+    background:
+        linear-gradient(
+            to bottom,
+            transparent,
+            rgba(91, 174, 218, 0.62),
+            rgba(91, 174, 218, 0.24)
+        );
+
+}
+
+
+.rain-effect-storm .rain-mist {
+
+    opacity: 0.8;
+
+}
+
+
+@keyframes stormFlash {
+
+    0%, 92%, 100% {
+
+        opacity:
+            0;
+
+    }
+
+    93% {
+
+        opacity:
+            0.55;
+
+    }
+
+    94% {
+
+        opacity:
+            0;
+
+    }
+
+    95% {
+
+        opacity:
+            0.32;
+
+    }
+
+    96% {
+
+        opacity:
+            0;
+
+    }
+
+}

@@ -1,5 +1,6 @@
 import {
     useEffect,
+    useId,
     useRef,
     useState
 } from "react";
@@ -134,6 +135,12 @@ function WeatherSearch({
 
     const [searchingCities, setSearchingCities] =
         useState(false);
+
+    // Ids that tie the input to its suggestion list (ARIA combobox).
+    const listboxId = useId();
+
+    const optionId = (index) =>
+        `${listboxId}-option-${index}`;
 
 
     // =====================================================
@@ -922,10 +929,20 @@ function WeatherSearch({
 
                                 }}
                                 placeholder="City, pincode, or lat, lon"
-                                aria-label="City name"
+                                role="combobox"
+                                aria-label="Search location by city, pincode, or coordinates"
                                 aria-autocomplete="list"
+                                aria-haspopup="listbox"
+                                aria-controls={listboxId}
                                 aria-expanded={
-                                    showSuggestions
+                                    showSuggestions &&
+                                    suggestions.length > 0
+                                }
+                                aria-activedescendant={
+                                    showSuggestions &&
+                                    activeIndex >= 0
+                                        ? optionId(activeIndex)
+                                        : undefined
                                 }
                                 autoComplete="off"
                                 spellCheck="false"
@@ -977,8 +994,10 @@ function WeatherSearch({
                             suggestions.length > 0 && (
 
                             <div
+                                id={listboxId}
                                 className="weather-city-suggestions"
                                 role="listbox"
+                                aria-label="Matching cities"
                             >
 
                                 <div className="weather-suggestions-label">
@@ -998,8 +1017,10 @@ function WeatherSearch({
                                         key={
                                             `${location.id}-${location.latitude}-${location.longitude}`
                                         }
+                                        id={optionId(index)}
                                         type="button"
                                         role="option"
+                                        tabIndex={-1}
                                         aria-selected={
                                             activeIndex ===
                                             index
@@ -1082,6 +1103,19 @@ function WeatherSearch({
 
                     </div>
 
+                    {/* Announces suggestion results to screen readers */}
+                    <div
+                        className="visually-hidden"
+                        role="status"
+                        aria-live="polite"
+                    >
+                        {showSuggestions && suggestions.length > 0
+                            ? `${suggestions.length} suggestion${
+                                  suggestions.length === 1 ? "" : "s"
+                              } available. Use the up and down arrow keys to choose.`
+                            : ""}
+                    </div>
+
 
                     {/* =================================================
                         SEARCH BUTTON
@@ -1099,7 +1133,10 @@ function WeatherSearch({
                         {loading ? (
 
                             <>
-                                <span className="button-spinner" />
+                                <span
+                                    className="button-spinner"
+                                    aria-hidden="true"
+                                />
                                 Searching
                             </>
 
@@ -1107,7 +1144,7 @@ function WeatherSearch({
 
                             <>
                                 Search
-                                <span>→</span>
+                                <span aria-hidden="true">→</span>
                             </>
 
                         )}
